@@ -1,2 +1,2 @@
-# autoreadconfig
-自动监听读取配置文件的更新
+# auto  
++ readconfig:自动监听读取配置文件的更新
