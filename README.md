@@ -1,2 +1,1 @@
-# auto  
-+ readconfig:自动监听读取配置文件的更新
+# goutil 个人go工具  
