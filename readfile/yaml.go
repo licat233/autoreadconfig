@@ -11,23 +11,18 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-//文件读取结构体
-//@LastModiTime 最后修改时间
-//@IsPanic 是否Panic
-type ReadFile struct {
-	LastModiTime time.Time
-	IsPanic      bool
-}
+var lastModiTime time.Time
+var isPanic bool
 
-//错误处理回调函数类型
-type ErrorHandler func(error)
+//errorHandler 错误处理回调函数类型
+type errorHandler func(error)
 
 //errHandler 错误处理
-func (r *ReadFile) errHandler(err error) {
+func errHandler(err error) {
 	if err == nil {
 		return
 	}
-	if r.LastModiTime.IsZero() {
+	if lastModiTime.IsZero() {
 		log.Fatal(err)
 	} else {
 		panic(err)
@@ -38,26 +33,26 @@ func (r *ReadFile) errHandler(err error) {
 //@path 文件路径string
 //@out 映射结构体地址，请传入&struct{}
 //errEvent 错误处理回调函数
-func (r *ReadFile) YamlConfig(path string, out interface{}, errEvent ErrorHandler) {
+func YamlConfig(path string, out interface{}, errEvent errorHandler) {
 	defer func() {
 		err := recover()
-		if err != nil && !r.IsPanic {
-			r.IsPanic = true
+		if err != nil && !isPanic {
+			isPanic = true
 			errEvent(errors.New(fmt.Sprint(err)))
-		} else if err == nil && r.IsPanic {
-			r.IsPanic = false
+		} else if err == nil && isPanic {
+			isPanic = false
 		}
 	}()
 	file, err := os.Open(path)
-	r.errHandler(err)
+	errHandler(err)
 	fileinfo, err := file.Stat()
-	r.errHandler(err)
+	errHandler(err)
 
-	if fileinfo.ModTime() != r.LastModiTime {
+	if fileinfo.ModTime() != lastModiTime {
 		configByte, err := ioutil.ReadAll(file)
-		r.errHandler(err)
+		errHandler(err)
 		err = yaml.Unmarshal(configByte, out)
-		r.errHandler(err)
-		r.LastModiTime = fileinfo.ModTime().Local()
+		errHandler(err)
+		lastModiTime = fileinfo.ModTime().Local()
 	}
 }
