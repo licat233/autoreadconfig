@@ -17,6 +17,10 @@ func CurrentPath() string {
 func getCurrentAbPath() string {
 	dir := getCurrentAbPathByExecutable()
 	//如果是 go run 启动的
+	tmpPath := getTmpDir()
+	if tmpPath == "." {
+		return getCurrentAbPathByCaller()
+	}
 	if strings.Contains(dir, getTmpDir()) {
 		return getCurrentAbPathByCaller()
 	}
